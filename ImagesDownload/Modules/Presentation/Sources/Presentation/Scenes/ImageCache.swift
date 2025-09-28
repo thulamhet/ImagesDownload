@@ -32,7 +32,7 @@ final class ImageCache {
         }
         
         // 2. Disk
-        let fileURL = diskCacheURL.appendingPathComponent(url.lastPathComponent)
+        let fileURL = diskCacheURL.appendingPathComponent(url.hashedFileName)
         if let data = try? Data(contentsOf: fileURL), let image = UIImage(data: data) {
             memoryCache.setObject(image, forKey: url as NSURL) // promote lên RAM
             return image
