@@ -15,8 +15,4 @@ final class ImageTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
     }
-
-    func configure(with url: URL) {
-        currentURL = url
-    }
 }

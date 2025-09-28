@@ -22,24 +22,30 @@ final class ListImagesViewController: BaseViewController {
         tableView.register(UINib(nibName: ImageTableViewCell.viewName, bundle: Presentation.bundle), forCellReuseIdentifier: ImageTableViewCell.viewName)
         tableView.dataSource = self
         tableView.rowHeight = 250
-
-        Task {
-            await viewModel.loadPhotos()
-            tableView.reloadData()
-        }
+        tableView.reloadData()
+        viewModel.loadPhotos()
     }
     
+    private func bindViewModel() {
+        viewModel.$photos
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+    }
 }
 
 extension ListImagesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.photoURLs.count
+        viewModel.photos.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ImageTableViewCell", for: indexPath) as! ImageTableViewCell
-        let url = viewModel.photoURLs[indexPath.row]
-        cell.configure(with: url)
+        let photo = viewModel.photos[indexPath.row]
+        cell.textLabel?.text = "Photo \(indexPath.row + 1)"
+        cell.imageView?.image = photo.image ?? UIImage(systemName: "photo")
         return cell
     }
 }
