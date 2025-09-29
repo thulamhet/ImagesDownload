@@ -6,9 +6,10 @@
 //
 
 import UIKit
+import CryptoKit
 
-final class ImageCache {
-    static let shared = ImageCache()
+final public class ImageCache {
+    public static let shared = ImageCache()
     
     private let memoryCache = NSCache<NSURL, UIImage>()
     private let fileManager = FileManager.default
@@ -18,13 +19,11 @@ final class ImageCache {
         let cacheDir = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
         diskCacheURL = cacheDir.appendingPathComponent("ImageCache")
         memoryCache.totalCostLimit = 30 * 1024 * 1024 // Giới hạn mem cache 30 mb
-//      memoryCache.countLimit = 30 // Giới hạn số ảnh trong mem cache
         if !fileManager.fileExists(atPath: diskCacheURL.path) {
             try? fileManager.createDirectory(at: diskCacheURL, withIntermediateDirectories: true)
         }
     }
     
-    // Lấy ảnh
     func image(for url: URL) -> UIImage? {
         // 1. Memory
         if let image = memoryCache.object(forKey: url as NSURL) {
@@ -40,15 +39,22 @@ final class ImageCache {
         return nil
     }
     
-    // Lưu ảnh
     func save(_ image: UIImage, for url: URL) {
         // 1. Memory
         memoryCache.setObject(image, forKey: url as NSURL)
         
         // 2. Disk
-        let fileURL = diskCacheURL.appendingPathComponent(url.lastPathComponent)
+        let fileURL = diskCacheURL.appendingPathComponent(url.hashedFileName)
         if let data = image.pngData() {
             try? data.write(to: fileURL)
         }
+    }
+}
+
+extension URL {
+    var hashedFileName: String {
+        let data = Data(self.absoluteString.utf8)
+        let hash = SHA256.hash(data: data)
+        return hash.map { String(format: "%02x", $0) }.joined()
     }
 }

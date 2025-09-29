@@ -11,7 +11,6 @@ import Domain
 import Data
 
 final class DIRegistration {
-
     static func load() {
         let di = DIRegistration()
         di.registerRepositories()
@@ -20,17 +19,16 @@ final class DIRegistration {
     }
 
     func registerUseCases() {
-//        Injector.containerInstance.register(service: ListUsersUseCase.self) { resolver in
-//            let rp = resolver.resolve(UserRepository.self)!
-//            return DefaultListUsersUseCase(repository: rp)
-//        }
+        Injector.containerInstance.register(service: GetImagesUseCase.self) { resolver in
+            let rp = resolver.resolve(ImagesRepository.self)!
+            return DefaultGetImagesUseCase(repository: rp)
+        }
     }
 
     func registerRepositories() {
-//        Injector.containerInstance.register(service: UserRepository.self) { resolver in
-//            let networkService = resolver.resolve(NetworkService.self)!
-//            return DefaultListUsersRepository(networkService: networkService)
-//        }
+        Injector.containerInstance.register(service: ImagesRepository.self) { resolver in
+            return DefaultImagesRepository()
+        }
     }
 
     func registerServices() {

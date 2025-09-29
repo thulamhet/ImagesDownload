@@ -11,6 +11,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ListImagesViewController" customModuleProvider="target">
             <connections>
+                <outlet property="loadingView" destination="Cm4-AS-n33" id="gff-6w-Aqg"/>
                 <outlet property="tableView" destination="APX-H1-Erl" id="uOL-fN-spa"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>

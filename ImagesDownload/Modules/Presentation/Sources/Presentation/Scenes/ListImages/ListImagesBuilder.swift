@@ -8,7 +8,6 @@
 import UIKit
 
 final class ListImagesBuilder {
-    @MainActor
     static func build() -> UIViewController {
         let router = ListImagesRouter()
         let vm = ListImagesViewModel(router: router)
