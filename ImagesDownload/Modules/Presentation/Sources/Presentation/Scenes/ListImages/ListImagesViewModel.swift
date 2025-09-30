@@ -25,7 +25,7 @@ final class ListImagesViewModel {
     }
     
     func loadPhotos() {
-        let listURLs = (1...100).compactMap {
+        let listURLs = (1...110).compactMap {
             URL(string: "https://picsum.photos/id/\($0)/2048/1365")
         }
         photos.append(contentsOf: listURLs.map { Photo(url: $0, image: nil) })

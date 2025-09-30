@@ -13,9 +13,9 @@ import Data
 final class DIRegistration {
     static func load() {
         let di = DIRegistration()
+        di.registerServices()
         di.registerRepositories()
         di.registerUseCases()
-        di.registerServices()
     }
 
     func registerUseCases() {
@@ -27,13 +27,13 @@ final class DIRegistration {
 
     func registerRepositories() {
         Injector.containerInstance.register(service: ImagesRepository.self) { resolver in
-            return DefaultImagesRepository()
+            return DefaultImagesRepository(cache: resolver.resolve(ImageCacheProtocol.self)!)
         }
     }
 
     func registerServices() {
-//        Injector.containerInstance.register(service: NetworkService.self) { _ in
-//            return NetworkService()
-//        }
+        Injector.containerInstance.register(service: ImageCacheProtocol.self) { _ in
+            return ImageCache()
+        }
     }
 }

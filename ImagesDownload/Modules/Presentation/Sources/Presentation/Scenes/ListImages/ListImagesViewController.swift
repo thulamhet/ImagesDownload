@@ -8,10 +8,10 @@
 import UIKit
 
 final class ListImagesViewController: BaseViewController {
-    private let viewModel: ListImagesViewModel
     @IBOutlet weak var loadingView: UIActivityIndicatorView!
     @IBOutlet private weak var tableView: UITableView!
     private var isLoadingData = false
+    private let viewModel: ListImagesViewModel
     
     init(viewModel: ListImagesViewModel) {
         self.viewModel = viewModel
@@ -20,6 +20,7 @@ final class ListImagesViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Danh sách ảnh"
         setupTableView()
     }
     

@@ -9,11 +9,11 @@ import Domain
 import UIKit
 
 public class DefaultImagesRepository: ImagesRepository {
-    private let cache: ImageCache
+    private let cache: ImageCacheProtocol
     private let downloadQueue: OperationQueue
     private var operations: [URL: Operation] = [:]
     
-    public init(cache: ImageCache = .shared) {
+    public init(cache: ImageCacheProtocol) {
         self.cache = cache
         self.downloadQueue = OperationQueue()
         self.downloadQueue.maxConcurrentOperationCount = 3

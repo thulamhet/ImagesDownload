@@ -8,45 +8,64 @@
 import UIKit
 import CryptoKit
 
-final public class ImageCache {
-    public static let shared = ImageCache()
-    
-    private let memoryCache = NSCache<NSURL, UIImage>()
-    private let fileManager = FileManager.default
+public protocol ImageCacheProtocol {
+    func image(for url: URL) -> UIImage?
+    func save(_ image: UIImage, for url: URL)
+}
+
+public final class ImageCache: ImageCacheProtocol {
+    private let memoryCache: NSCache<NSURL, UIImage>
+    private let fileManager: FileManager
     private let diskCacheURL: URL
+    private let ioQueue: DispatchQueue
     
-    private init() {
-        let cacheDir = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
-        diskCacheURL = cacheDir.appendingPathComponent("ImageCache")
-        memoryCache.totalCostLimit = 30 * 1024 * 1024 // Giới hạn mem cache 30 mb
+    public init(
+        memoryCache: NSCache<NSURL, UIImage> = NSCache<NSURL, UIImage>(),
+        fileManager: FileManager = .default,
+        cacheDir: URL? = nil,
+        ioQueue: DispatchQueue = DispatchQueue(label: "ImageCache.IO", qos: .utility)
+    ) {
+        self.memoryCache = memoryCache
+        self.fileManager = fileManager
+        self.ioQueue = ioQueue
+        
+        let dir = cacheDir ?? fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        self.diskCacheURL = dir.appendingPathComponent("ImageCache")
+        
+        memoryCache.totalCostLimit = 30 * 1024 * 1024
+        
         if !fileManager.fileExists(atPath: diskCacheURL.path) {
             try? fileManager.createDirectory(at: diskCacheURL, withIntermediateDirectories: true)
         }
     }
     
-    func image(for url: URL) -> UIImage? {
-        // 1. Memory
+    public func image(for url: URL) -> UIImage? {
         if let image = memoryCache.object(forKey: url as NSURL) {
             return image
         }
         
-        // 2. Disk
-        let fileURL = diskCacheURL.appendingPathComponent(url.hashedFileName)
-        if let data = try? Data(contentsOf: fileURL), let image = UIImage(data: data) {
-            memoryCache.setObject(image, forKey: url as NSURL) // promote lên RAM
-            return image
+        var loadedImage: UIImage?
+        ioQueue.sync {
+            let fileURL = diskCacheURL.appendingPathComponent(url.hashedFileName)
+            if let data = try? Data(contentsOf: fileURL),
+               let img = UIImage(data: data) {
+                let cost = Int(img.size.width * img.size.height)
+                memoryCache.setObject(img, forKey: url as NSURL, cost: cost)
+                loadedImage = img
+            }
         }
-        return nil
+        return loadedImage
     }
     
-    func save(_ image: UIImage, for url: URL) {
-        // 1. Memory
-        memoryCache.setObject(image, forKey: url as NSURL)
+    public func save(_ image: UIImage, for url: URL) {
+        let cost = Int(image.size.width * image.size.height)
+        memoryCache.setObject(image, forKey: url as NSURL, cost: cost)
         
-        // 2. Disk
-        let fileURL = diskCacheURL.appendingPathComponent(url.hashedFileName)
-        if let data = image.pngData() {
-            try? data.write(to: fileURL)
+        ioQueue.async {
+            let fileURL = self.diskCacheURL.appendingPathComponent(url.hashedFileName)
+            if let data = image.jpegData(compressionQuality: 1.0) {
+                try? data.write(to: fileURL)
+            }
         }
     }
 }
