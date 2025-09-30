@@ -8,19 +8,22 @@
 import UIKit
 
 public protocol GetImagesUseCase {
-    func execute(urls: [URL],
-                           completion: @escaping (Result<[UIImage?], NetworkError>) -> Void)
+    func execute(url: URL, completion: @escaping (Result<UIImage?, NetworkError>) -> Void)
+    func cancelDownload(for url: URL)
 }
 
 public class DefaultGetImagesUseCase: GetImagesUseCase {
-    public func execute(urls: [URL],
-                           completion: @escaping (Result<[UIImage?], NetworkError>) -> Void) {
-       repository.fetchImages(for: urls, completion: completion)
-   }
-    
     private let repository: ImagesRepository
     
     public init(repository: ImagesRepository) {
         self.repository = repository
+    }
+    
+    public func execute(url: URL, completion: @escaping (Result<UIImage?, NetworkError>) -> Void) {
+        repository.downloadImage(for: url, completion: completion)
+   }
+    
+    public func cancelDownload(for url: URL) {
+        repository.cancelDownload(for: url)
     }
 }

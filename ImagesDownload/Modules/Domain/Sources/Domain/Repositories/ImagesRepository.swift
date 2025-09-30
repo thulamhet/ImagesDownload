@@ -8,5 +8,6 @@
 import UIKit
 
 public protocol ImagesRepository {
-    func fetchImages(for urls: [URL], completion: @escaping (Result<[UIImage?], Domain.NetworkError>) -> Void)
+    func downloadImage(for url: URL, completion: @escaping (Result<UIImage?, Domain.NetworkError>) -> Void)
+    func cancelDownload(for url: URL)
 }
