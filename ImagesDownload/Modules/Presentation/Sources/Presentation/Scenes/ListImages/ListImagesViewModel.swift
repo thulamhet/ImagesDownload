@@ -7,7 +7,6 @@
 
 import Domain
 import DI
-import Combine
 import Foundation
 import UIKit
 
@@ -16,7 +15,6 @@ final class ListImagesViewModel {
     var photos: [Photo] = []
     
     private let router: ListImagesRouter
-    private var cancellables = Set<AnyCancellable>()
     private var isLoading = false
     
     init(router: ListImagesRouter) {

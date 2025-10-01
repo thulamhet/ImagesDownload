@@ -35,7 +35,6 @@ public class DefaultImagesRepository: ImagesRepository {
             if let data = try? Data(contentsOf: url),
                let img = UIImage(data: data) {
                 
-                print("Đã tải thành công url: \(url)")
                 let resized = img.resized(to: CGSize(width: 250, height: 250))
                 self.cache.save(resized, for: url)
                 
@@ -60,7 +59,6 @@ public class DefaultImagesRepository: ImagesRepository {
         guard let op = operations[url], !op.isFinished else { return }
         operations[url]?.cancel()
         operations[url] = nil
-        print("Cancel: \(url)")
     }
 }
 

@@ -55,7 +55,6 @@ extension ListImagesViewController: UITableViewDataSource {
            self?.viewModel.cancelDownload(url: url)
         }
         viewModel.downloadImage(for: photo.url) { image in
-            // Check cell chưa bị reuse
             if cell.currentURL == photo.url {
                 cell.photoView.image = image
             }
