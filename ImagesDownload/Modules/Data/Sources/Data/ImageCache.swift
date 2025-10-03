@@ -58,7 +58,12 @@ public final class ImageCache: ImageCacheProtocol {
     }
     
     public func save(_ image: UIImage, for url: URL) {
-        let cost = Int(image.size.width * image.size.height)
+//        Trên màn hình Retina 2× hoặc 3×:
+//        100pt × 100pt thực chất là 200×200 hoặc 300×300 pixels.
+//        Mỗi pixel thường dùng 4 byte (RGBA 8-bit).
+//        Do đó cost thực sự ≈ width * scale * height * scale * 4.
+        let pixels = Int(image.size.width * image.scale * image.size.height * image.scale)
+        let cost = pixels * 4
         memoryCache.setObject(image, forKey: url as NSURL, cost: cost)
         
         ioQueue.async {
